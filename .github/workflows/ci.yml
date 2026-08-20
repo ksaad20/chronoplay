@@ -114,9 +114,9 @@ jobs:
 
       - name: Run tests
         run: |
-         python -m pytest tests/ \
-         --verbose \
-         --tb=short \
+         python -m pytest tests
+         --verbose 
+         --tb=short 
          --junitxml=test-results.xml
 
       - name: Upload test results
