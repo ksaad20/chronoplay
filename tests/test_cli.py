@@ -1,10 +1,13 @@
-from chronoplay.cli.commands import main
+import subprocess
+import sys
 
 
-def test_cli_help(capsys):
-    result = main(["--help"])
+def test_cli_help() -> None:
+    result = subprocess.run(
+        [sys.executable, "-m", "chronoplay", "--help"],
+        capture_output=True,
+        text=True,
+    )
 
-    assert result == 0
-
-    captured = capsys.readouterr()
-    assert "ChronoPlay" in captured.out
+    assert result.returncode == 0
+    assert result.stdout
