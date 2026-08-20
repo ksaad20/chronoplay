@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 
-
 def build_parser() -> argparse.ArgumentParser:
     """Build the ChronoPlay command-line argument parser."""
     parser = argparse.ArgumentParser(
