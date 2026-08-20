@@ -59,8 +59,8 @@ jobs:
           python -m pytest tests/ \
             --cov=chronoplay \
             --cov-report=term-missing
-            - name: Install development dependencies
-          run: |
+      - name: Install development dependencies
+        run: |
           python -m pip install pytest pytest-cov ruff black bandit
 
       - name: Check formatting
