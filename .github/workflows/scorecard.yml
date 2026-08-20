@@ -9,12 +9,10 @@ on:
       - main
       - master
 
-# Scorecard needs to read the repository and upload results
-# to GitHub's code scanning dashboard.
 permissions:
+  contents: read
   security-events: write
   id-token: write
-  contents: read
 
 jobs:
   analysis:
@@ -29,7 +27,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run OpenSSF Scorecard
-        uses: ossf/scorecard-action@0864cf7b8a0c4d5b5b5f6e6f8f0d9f5d0c3c6a5b
+        uses: ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc # v2.4.4
         with:
           results_file: results.sarif
           results_format: sarif
