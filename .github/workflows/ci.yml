@@ -113,11 +113,7 @@ jobs:
           python -m pip install -e ".[dev]"
 
       - name: Run tests
-        run: |
-         python -m pytest tests
-         --verbose 
-         --tb=short 
-         --junitxml=test-results.xml
+        run: python -m pytest tests/ --verbose --tb=short --junitxml=test-results.xml
 
       - name: Upload test results
         if: always()
