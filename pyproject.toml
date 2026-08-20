@@ -15,6 +15,15 @@ authors = [
     { name = "Kazi Saad Asif" }
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "black",
+    "bandit",
+]
+
 keywords = [
     "broadcast",
     "playout",
