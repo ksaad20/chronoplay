@@ -1,0 +1,323 @@
+```
+
+chronoplay/
+│
+├── .github/
+│   ├── workflows/
+│   │   ├── ci.yml
+│   │   ├── test.yml
+│   │   └── release.yml
+│   │
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.yml
+│   │   └── feature_request.yml
+│   │
+│   └── pull_request_template.md
+│
+├── docs/
+│   │
+│   ├── architecture/
+│   │   ├── overview.md
+│   │   ├── core.md
+│   │   ├── clock.md
+│   │   ├── scheduler.md
+│   │   ├── media.md
+│   │   ├── playout.md
+│   │   ├── pipeline.md
+│   │   ├── latency.md
+│   │   ├── sources.md
+│   │   ├── outputs.md
+│   │   └── platform.md
+│   │
+│   ├── protocols/
+│   │   ├── hls.md
+│   │   ├── ll-hls.md
+│   │   ├── webrtc.md
+│   │   └── future-protocols.md
+│   │
+│   ├── operations/
+│   │   ├── deployment.md
+│   │   ├── configuration.md
+│   │   ├── monitoring.md
+│   │   ├── troubleshooting.md
+│   │   └── latency-measurement.md
+│   │
+│   └── development/
+│       ├── setup.md
+│       ├── contributing.md
+│       └── architecture-decisions.md
+│
+├── examples/
+│   ├── playlists/
+│   │   ├── example.yaml
+│   │   └── television.yaml
+│   │
+│   ├── configuration/
+│   │   ├── config.example.yaml
+│   │   └── output-profiles.yaml
+│   │
+│   └── latency/
+│       └── latency-test.yaml
+│
+├── scripts/
+│   ├── build.py
+│   ├── package.py
+│   ├── benchmark.py
+│   └── validate_environment.py
+│
+├── src/
+│   └── chronoplay/
+│       │
+│       ├── __init__.py
+│       ├── __main__.py
+│       │
+│       ├── core/
+│       │   ├── __init__.py
+│       │   ├── application.py
+│       │   ├── state.py
+│       │   ├── events.py
+│       │   └── exceptions.py
+│       │
+│       ├── clock/
+│       │   ├── __init__.py
+│       │   ├── clock.py
+│       │   ├── timezone.py
+│       │   ├── synchronization.py
+│       │   ├── drift.py
+│       │   └── reference.py
+│       │
+│       ├── scheduler/
+│       │   ├── __init__.py
+│       │   ├── scheduler.py
+│       │   ├── event.py
+│       │   ├── timeline.py
+│       │   ├── timing.py
+│       │   ├── dependency.py
+│       │   └── conflicts.py
+│       │
+│       ├── media/
+│       │   ├── __init__.py
+│       │   ├── asset.py
+│       │   ├── segment.py
+│       │   ├── metadata.py
+│       │   ├── probe.py
+│       │   └── timestamp.py
+│       │
+│       ├── sources/
+│       │   ├── __init__.py
+│       │   ├── base.py
+│       │   ├── capabilities.py
+│       │   ├── registry.py
+│       │   │
+│       │   ├── local/
+│       │   │   ├── __init__.py
+│       │   │   └── source.py
+│       │   │
+│       │   ├── http/
+│       │   │   ├── __init__.py
+│       │   │   └── source.py
+│       │   │
+│       │   ├── hls/
+│       │   │   ├── __init__.py
+│       │   │   └── source.py
+│       │   │
+│       │   └── youtube/
+│       │       ├── __init__.py
+│       │       └── source.py
+│       │
+│       ├── playout/
+│       │   ├── __init__.py
+│       │   ├── engine.py
+│       │   ├── player.py
+│       │   ├── state.py
+│       │   ├── transitions.py
+│       │   ├── preloader.py
+│       │   └── timestamps.py
+│       │
+│       ├── pipeline/
+│       │   ├── __init__.py
+│       │   ├── pipeline.py
+│       │   ├── stage.py
+│       │   ├── buffer.py
+│       │   ├── backpressure.py
+│       │   └── latency.py
+│       │
+│       ├── encoding/
+│       │   ├── __init__.py
+│       │   ├── encoder.py
+│       │   ├── profile.py
+│       │   ├── preset.py
+│       │   └── capabilities.py
+│       │
+│       ├── outputs/
+│       │   ├── __init__.py
+│       │   ├── base.py
+│       │   ├── registry.py
+│       │   │
+│       │   ├── local/
+│       │   │   ├── __init__.py
+│       │   │   └── output.py
+│       │   │
+│       │   ├── hls/
+│       │   │   ├── __init__.py
+│       │   │   └── output.py
+│       │   │
+│       │   ├── ll_hls/
+│       │   │   ├── __init__.py
+│       │   │   └── output.py
+│       │   │
+│       │   └── webrtc/
+│       │       ├── __init__.py
+│       │       └── output.py
+│       │
+│       ├── latency/
+│       │   ├── __init__.py
+│       │   ├── model.py
+│       │   ├── budget.py
+│       │   ├── measurement.py
+│       │   ├── monitor.py
+│       │   └── diagnostics.py
+│       │
+│       ├── playlist/
+│       │   ├── __init__.py
+│       │   ├── model.py
+│       │   ├── loader.py
+│       │   ├── writer.py
+│       │   └── validator.py
+│       │
+│       ├── validation/
+│       │   ├── __init__.py
+│       │   ├── schedule.py
+│       │   ├── media.py
+│       │   ├── source.py
+│       │   └── system.py
+│       │
+│       ├── configuration/
+│       │   ├── __init__.py
+│       │   ├── config.py
+│       │   ├── defaults.py
+│       │   └── profiles.py
+│       │
+│       ├── monitoring/
+│       │   ├── __init__.py
+│       │   ├── metrics.py
+│       │   ├── health.py
+│       │   └── events.py
+│       │
+│       ├── logging/
+│       │   ├── __init__.py
+│       │   └── logger.py
+│       │
+│       ├── interfaces/
+│       │   ├── __init__.py
+│       │   ├── clock.py
+│       │   ├── media.py
+│       │   ├── player.py
+│       │   ├── source.py
+│       │   ├── output.py
+│       │   └── filesystem.py
+│       │
+│       ├── platform/
+│       │   ├── __init__.py
+│       │   ├── detector.py
+│       │   └── capabilities.py
+│       │
+│       ├── adapters/
+│       │   ├── __init__.py
+│       │   │
+│       │   ├── filesystem/
+│       │   │   ├── __init__.py
+│       │   │   └── native.py
+│       │   │
+│       │   ├── clock/
+│       │   │   ├── __init__.py
+│       │   │   └── system.py
+│       │   │
+│       │   └── media/
+│       │       ├── __init__.py
+│       │       └── backend.py
+│       │
+│       ├── ui/
+│       │   ├── __init__.py
+│       │   ├── application.py
+│       │   ├── main_window.py
+│       │   ├── dashboard.py
+│       │   ├── playlist_view.py
+│       │   ├── timeline_view.py
+│       │   ├── player_view.py
+│       │   ├── clock_view.py
+│       │   ├── latency_view.py
+│       │   └── dialogs/
+│       │       ├── settings.py
+│       │       ├── media.py
+│       │       ├── schedule.py
+│       │       ├── output.py
+│       │       └── diagnostics.py
+│       │
+│       └── cli/
+│           ├── __init__.py
+│           └── commands.py
+│
+├── tests/
+│   │
+│   ├── unit/
+│   │   ├── core/
+│   │   ├── clock/
+│   │   ├── scheduler/
+│   │   ├── media/
+│   │   ├── sources/
+│   │   ├── playout/
+│   │   ├── pipeline/
+│   │   ├── playlist/
+│   │   ├── latency/
+│   │   └── validation/
+│   │
+│   ├── integration/
+│   │   ├── scheduler/
+│   │   ├── playout/
+│   │   ├── pipeline/
+│   │   └── outputs/
+│   │
+│   ├── performance/
+│   │   ├── latency/
+│   │   ├── scheduling/
+│   │   └── throughput/
+│   │
+│   ├── platform/
+│   │   ├── test_windows.py
+│   │   ├── test_linux.py
+│   │   └── test_macos.py
+│   │
+│   ├── fixtures/
+│   │   ├── media/
+│   │   ├── playlists/
+│   │   └── configuration/
+│   │
+│   └── conftest.py
+│
+├── assets/
+│   ├── icons/
+│   ├── images/
+│   └── fonts/
+│
+├── packaging/
+│   ├── windows/
+│   │   ├── chronoplay.spec
+│   │   └── installer/
+│   │
+│   ├── linux/
+│   │   └── packaging/
+│   │
+│   └── macos/
+│       └── packaging/
+│
+├── config/
+│   └── config.example.yaml
+│
+├── .editorconfig
+├── .gitignore
+├── LICENSE
+├── README.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+└── pyproject.toml
