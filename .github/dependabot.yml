@@ -12,3 +12,18 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+
+  - name: Debug pyproject
+    shell: bash
+    run: |
+    echo "Commit:"
+    git rev-parse HEAD
+
+    echo "optional-dependencies declarations:"
+    grep -n '^\[project.optional-dependencies\]' pyproject.toml || true
+
+    echo "project sections:"
+    grep -n '^\[project' pyproject.toml || true
+
+    echo "Validate TOML:"
+    python -c "import tomllib; tomllib.load(open('pyproject.toml','rb')); print('TOML OK')"
