@@ -149,3 +149,7 @@ exclude_dirs = [
     ".venv",
     "venv",
 ]
+
+[tool.black]
+target-version = ["py310", "py311", "py312"]
+line-length = 88
