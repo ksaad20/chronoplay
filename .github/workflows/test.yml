@@ -34,6 +34,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
 
+      - name: Install test dependencies
+        run: |
+          python -m pip install pytest pytest-cov
+
       - name: Install ChronoPlay
         run: |
           python -m pip install -e .
