@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable 
+from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
 from threading import RLock
@@ -38,7 +38,7 @@ class PlayoutEngine:
 
     The v0.0.1 engine validates media and manages deterministic playout
     state. Actual decoding, rendering, encoding, and network delivery are
-    intentionally delegated to future backend implementations.
+    delegated to future backend implementations.
     """
 
     def __init__(
@@ -90,7 +90,9 @@ class PlayoutEngine:
         """Validate and accept a scheduled event for playout."""
         with self._lock:
             if self._state is PlayoutState.STOPPED:
-                raise PlayoutError("Playout engine must be started before playing an event.")
+                raise PlayoutError(
+                    "Playout engine must be started before playing an event."
+                )
 
             if self._state is PlayoutState.ERROR:
                 raise PlayoutError("Playout engine is in an error state.")
@@ -102,7 +104,9 @@ class PlayoutEngine:
             except MediaError as exc:
                 self._state = PlayoutState.ERROR
                 self._current_event = None
-                raise PlayoutError(f"Media validation failed for event {event.event_id}: "f"{exc}") from exc
+                raise PlayoutError(
+                    f"Media validation failed for event {event.event_id}: {exc}"
+                ) from exc
 
             self._current_event = event
             self._state = PlayoutState.PLAYING
@@ -147,6 +151,8 @@ class PlayoutEngine:
         payload: Any = event.payload
 
         if not isinstance(payload, MediaAsset):
-            raise PlayoutError("ScheduleEvent payload must contain a MediaAsset.")
+            raise PlayoutError(
+                "ScheduleEvent payload must contain a MediaAsset."
+            )
 
         return payload
