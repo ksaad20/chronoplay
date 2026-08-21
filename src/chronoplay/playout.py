@@ -102,7 +102,10 @@ class PlayoutEngine:
             except MediaError as exc:
                 self._state = PlayoutState.ERROR
                 self._current_event = None
-                raise PlayoutError(f"Media validation failed for event {event.event_id}: "f"{exc}") from exc
+                raise PlayoutError(
+                    f"Media validation failed for event {event.event_id}: 
+"f"
+{exc}") from exc
 
             self._current_event = event
             self._state = PlayoutState.PLAYING
