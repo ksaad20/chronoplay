@@ -48,6 +48,7 @@ dependencies = [
     "platformdirs>=4.0",
 ]
 
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0,<10",
@@ -136,6 +137,7 @@ exclude_dirs = [
     ".venv",
     "venv",
 ]
+
 
 [tool.black]
 target-version = ["py310", "py311", "py312"]
