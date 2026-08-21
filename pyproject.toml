@@ -140,7 +140,7 @@ exclude_dirs = [
 
 
 [tool.black]
-target-version = ["py310", "py311", "py312"]
+target-version = ["py310"]
 line-length = 88
 
 
