@@ -9,7 +9,7 @@ version = "0.0.1"
 description = "Cross-platform, time-synchronized media playout and broadcast scheduling system."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 
 authors = [
     { name = "Kazi Saad Asif" }
@@ -64,14 +64,16 @@ dev = [
 [project.scripts]
 chronoplay = "chronoplay.cli.commands:main"
 
+[project.urls]
+Homepage = "https://github.com/ksaad20/chronoplay"
+Repository = "https://github.com/ksaad20/chronoplay"
+Issues = "https://github.com/ksaad20/chronoplay/issues"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
 
-
 [tool.setuptools.packages.find]
 where = ["src"]
-
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -84,7 +86,7 @@ addopts = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = ["py310", "py311", "py312", "py313"]
 
 src = ["src", "tests"]
 
@@ -96,7 +98,6 @@ exclude = [
     "build",
     "dist",
 ]
-
 
 [tool.ruff.lint]
 select = [
@@ -111,11 +112,9 @@ ignore = [
     "E501",
 ]
 
-
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
-
 
 [tool.mypy]
 python_version = "3.10"
@@ -126,7 +125,6 @@ warn_unused_ignores = true
 check_untyped_defs = true
 disallow_untyped_defs = false
 no_implicit_optional = true
-
 
 [tool.bandit]
 exclude_dirs = [
