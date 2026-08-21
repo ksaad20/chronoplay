@@ -61,6 +61,7 @@ dev = [
     "pip-audit>=2.7,<3",
 ]
 
+
 [project.scripts]
 chronoplay = "chronoplay.cli.commands:main"
 
@@ -81,6 +82,7 @@ addopts = [
     "--strict-markers",
     "-ra",
 ]
+
 
 [tool.ruff]
 line-length = 100
@@ -139,9 +141,11 @@ exclude_dirs = [
 target-version = ["py310", "py311", "py312"]
 line-length = 88
 
+
 [tool.coverage.run]
 source = ["chronoplay"]
 branch = true
+
 
 [tool.coverage.report]
 show_missing = true
