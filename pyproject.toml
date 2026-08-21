@@ -60,6 +60,7 @@ dev = [
     "build>=1.2,<2",
     "twine>=5.0,<8",
     "pip-audit>=2.7,<3",
+    "types-PyYAML>=6.0,<7",
 ]
 
 
