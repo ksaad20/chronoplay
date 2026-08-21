@@ -323,7 +323,6 @@ jobs:
   ci-success:
     name: CI Success
     if: ${{ always() }}
-
     needs:
       - lint
       - test
@@ -332,21 +331,27 @@ jobs:
       - security
       - package
       - smoke-test
-
     runs-on: ubuntu-latest
 
     steps:
       - name: Verify CI results
+        env:
+          LINT_RESULT: ${{ needs.lint.result }}
+          TEST_RESULT: ${{ needs.test.result }}
+          COVERAGE_RESULT: ${{ needs.coverage.result }}
+          TYPE_CHECK_RESULT: ${{ needs.type-check.result }}
+          SECURITY_RESULT: ${{ needs.security.result }}
+          PACKAGE_RESULT: ${{ needs.package.result }}
+          SMOKE_TEST_RESULT: ${{ needs.smoke-test.result }}
+        shell: bash
         run: |
-          if [[ \
-            "${{ needs.lint.result }}" != "success" || \
-            "${{ needs.test.result }}" != "success" || \
-            "${{ needs.coverage.result }}" != "success" || \
-            "${{ needs.type-check.result }}" != "success" || \
-            "${{ needs.security.result }}" != "success" || \
-            "${{ needs.package.result }}" != "success" || \
-            "${{ needs.smoke-test.result }}" != "success" \
-          ]]; then
+          if [[ "$LINT_RESULT" != "success" ||
+                "$TEST_RESULT" != "success" ||
+                "$COVERAGE_RESULT" != "success" ||
+                "$TYPE_CHECK_RESULT" != "success" ||
+                "$SECURITY_RESULT" != "success" ||
+                "$PACKAGE_RESULT" != "success" ||
+                "$SMOKE_TEST_RESULT" != "success" ]]; then
             echo "One or more CI jobs failed."
             exit 1
           fi
