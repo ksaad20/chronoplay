@@ -141,7 +141,7 @@ exclude_dirs = [
 
 [tool.black]
 target-version = ["py310"]
-line-length = 88
+line-length = 100
 
 
 [tool.coverage.run]
