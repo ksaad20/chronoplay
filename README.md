@@ -1,15 +1,15 @@
-[![CI](https://github.com/<YOUR-USERNAME>/<YOUR-REPOSITORY>/actions/workflows/test.yml/badge.svg)](https://github.com/<YOUR-USERNAME>/<YOUR-REPOSITORY>/actions/workflows/test.yml)
+[![CI](https://github.com/USERNAME/chronoplay/actions/workflows/test.yml/badge.svg)](https://github.com/USERNAME/chronoplay/actions/workflows/test.yml)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Tests](https://img.shields.io/badge/tests-178%20passed-brightgreen.svg)](#testing)
-[![Version](https://img.shields.io/badge/version-0.0.1-orange.svg)](#release-status)
-[![Status](https://img.shields.io/badge/status-alpha-yellow.svg)](#release-status)
+[![Tests](https://img.shields.io/badge/tests-178%20passed-brightgreen.svg)](https://github.com/USERNAME/chronoplay/actions)
+[![Version](https://img.shields.io/badge/version-0.0.1-orange.svg)](https://github.com/USERNAME/chronoplay/releases)
+[![Status](https://img.shields.io/badge/status-alpha-yellow.svg)](https://github.com/USERNAME/chronoplay/releases)
 
 ## Release Status
 
 **ChronoPlay v0.0.1 — Complete**
 
-The v0.0.1 development checklist is complete. The current release includes the documented functionality for v0.0.1 and has passed the complete automated test suite.
+The v0.0.1 development checklist is complete.
 
 - [x] v0.0.1 feature checklist complete
 - [x] 9 test files
@@ -19,8 +19,7 @@ The v0.0.1 development checklist is complete. The current release includes the d
 - [x] Distribution metadata validated
 - [x] v0.0.1 release baseline established
 
-> **Release status:** Alpha — v0.0.1  
-> This release is suitable for continued development and evaluation. Production broadcast deployment should be validated against the target operating environment.
+> **Release status:** Alpha — v0.0.1
 
 # ChronoPlay
 
