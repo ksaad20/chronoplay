@@ -1,13 +1,12 @@
-"""Media output abstractions for ChronoPlay."""
-
 from __future__ import annotations
 
+import os
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import Enum
-import os
 from subprocess import DEVNULL, PIPE, Popen, TimeoutExpired
 from threading import RLock
-from typing import Mapping, Protocol
+from typing import Protocol
 
 
 class OutputError(RuntimeError):
@@ -122,9 +121,7 @@ class FFmpegOutput:
                 self._process = None
                 self._state = OutputState.FAILED
                 self._last_error = str(exc)
-                raise OutputError(
-                    f"Unable to start output backend {self.config.name!r}."
-                ) from exc
+                raise OutputError(f"Unable to start output backend {self.config.name!r}.") from exc
 
             self._state = OutputState.RUNNING
 
