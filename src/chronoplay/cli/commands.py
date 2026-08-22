@@ -1,10 +1,15 @@
-"""Command-line interface for ChronoPlay."""
-
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 
 from chronoplay import __version__
+from chronoplay.demo import run_demo
+
+
+def _run_demo(media_path: Path) -> None:
+    """Run the ChronoPlay demonstration."""
+    run_demo(media_path)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -12,7 +17,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="chronoplay",
         description=(
-            "ChronoPlay: cross-platform, time-synchronized, broadcast playout and scheduling system."
+            "ChronoPlay: cross-platform, time-synchronized, "
+            "broadcast playout and scheduling system."
         ),
     )
 
@@ -52,13 +58,31 @@ def build_parser() -> argparse.ArgumentParser:
         help="Show the resolved schedule without executing playout.",
     )
 
+    subparsers = parser.add_subparsers(dest="command")
+
+    demo_parser = subparsers.add_parser(
+        "demo",
+        help="Run a ChronoPlay demonstration.",
+        description="Run a ChronoPlay demonstration using a media file.",
+    )
+    demo_parser.add_argument(
+        "media_path",
+        type=Path,
+        help="Path to the media file used for the demonstration.",
+    )
+    demo_parser.set_defaults(func=_run_demo)
+
     return parser
 
 
 def main() -> int:
     """Run the ChronoPlay command-line interface."""
     parser = build_parser()
-    parser.parse_args()
+    args = parser.parse_args()
+
+    if args.command == "demo":
+        args.func(args.media_path)
+
     return 0
 
 
