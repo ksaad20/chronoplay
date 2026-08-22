@@ -112,9 +112,18 @@ jobs:
         run: |
           python -m pip install -e ".[dev]"
 
-      - name: Run tests
-        run: python -m pytest tests/ --verbose --tb=short --junitxml=test-results.xml
+      - name: Inspect test suite
+        run: |
+         echo "=== Test files ==="
+         find tests -maxdepth 1 -type f -print | sort
+         echo "=== Git tracked tests ==="
+         git ls-files tests/
+         echo "=== Pytest collection ==="
+         python -m pytest tests/ --collect-only -q
 
+      - name: Run test suite
+        run: |
+          python -m pytest tests/ -v
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
