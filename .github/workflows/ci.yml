@@ -112,6 +112,32 @@ jobs:
         run: |
           python -m pip install -e ".[dev]"
 
+      - name: Debug pytest discovery
+        shell: pwsh
+        run: |
+         Write-Host "=== Current directory ==="
+         Get-Location
+
+         Write-Host "=== Repository contents ==="
+         Get-ChildItem
+
+         Write-Host "=== Tests directory ==="
+         Get-ChildItem tests
+
+         Write-Host "=== All test files ==="
+         Get-ChildItem tests -Recurse -File | Select-Object -ExpandProperty FullName
+
+         Write-Host "=== Tracked test files ==="
+         git ls-files tests/
+
+         Write-Host "=== Pytest collection ==="
+         python -m pytest --collect-only -vv
+
+      - name: Run test suite
+        shell: pwsh
+        run: |
+          python -m pytest tests/ -v
+
       - name: Inspect test suite
         run: |
          echo "=== Test files ==="
