@@ -1,18 +1,4 @@
-[![Tests](https://github.com/ksaad20/chronoplay/actions/workflows/test.yml/badge.svg)](https://github.com/ksaad20/chronoplay/actions/workflows/test.yml)
-
-[![Build](https://github.com/ksaad20/chronoplay/actions/workflows/build.yml/badge.svg)](https://github.com/ksaad20/chronoplay/actions/workflows/build.yml)
-
-[![Quality](https://github.com/ksaad20/chronoplay/actions/workflows/quality.yml/badge.svg)](https://github.com/ksaad20/chronoplay/actions/workflows/quality.yml)
-
-[![CodeQL](https://github.com/ksaad20/chronoplay/actions/workflows/codeql.yml/badge.svg)](https://github.com/ksaad20/chronoplay/actions/workflows/codeql.yml)
-
-[![Scorecard](https://github.com/ksaad20/chronoplay/actions/workflows/scorecard.yml/badge.svg)](https://github.com/ksaad20/chronoplay/actions/workflows/scorecard.yml)
-
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/ksaad20/chronoplay/blob/main/LICENSE)
-
-[![Version](https://img.shields.io/badge/version-0.0.1-orange.svg)](https://github.com/ksaad20/chronoplay/releases)
+[![Tests](https://github.com/ksaad20/chronoplay/actions/workflows/test.yml/badge.svg)](https://github.com/ksaad20/chronoplay/actions/workflows/test.yml) [![Build](https://github.com/ksaad20/chronoplay/actions/workflows/build.yml/badge.svg)](https://github.com/ksaad20/chronoplay/actions/workflows/build.yml) [![Quality](https://github.com/ksaad20/chronoplay/actions/workflows/quality.yml/badge.svg)](https://github.com/ksaad20/chronoplay/actions/workflows/quality.yml) [![CodeQL](https://github.com/ksaad20/chronoplay/actions/workflows/codeql.yml/badge.svg)](https://github.com/ksaad20/chronoplay/actions/workflows/codeql.yml) [![Scorecard](https://github.com/ksaad20/chronoplay/actions/workflows/scorecard.yml/badge.svg)](https://github.com/ksaad20/chronoplay/actions/workflows/scorecard.yml) [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/) [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/ksaad20/chronoplay/blob/main/LICENSE) [![Version](https://img.shields.io/badge/version-0.0.1-orange.svg)](https://github.com/ksaad20/chronoplay/releases)
 
 
 ## Release Status
