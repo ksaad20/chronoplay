@@ -112,14 +112,25 @@ jobs:
         run: |
           python -m pip install -e ".[dev]"
 
-      - name: Inspect test suite
+      - name: Debug pytest discovery
         run: |
-         echo "=== Test files ==="
-         find tests -maxdepth 1 -type f -print | sort
-         echo "=== Git tracked tests ==="
-         git ls-files tests/
+         echo "=== Current directory ==="
+         pwd
+
+         echo "=== Repository contents ==="
+         ls -la
+
+         echo "=== Tests directory ==="
+         ls -la tests
+
+         echo "=== All test files ==="
+         find tests -type f -print | sort
+
+         echo "=== Tracked test files ==="
+         git ls-files | grep '^tests/'
+
          echo "=== Pytest collection ==="
-         python -m pytest tests/ --collect-only -q
+         python -m pytest --collect-only -vv
 
       - name: Run test suite
         run: |
