@@ -9,7 +9,8 @@ import pytest
 def test_cli_command_missing_line_290():
     from chronoplay.cli import commands
 
-    # Simulates passing invalid flags via sys.argv rather than direct function parameters
+    # Simulates passing invalid flags via sys.argv rather than direct function
+    # parameters
     with (
         patch.object(sys, "argv", ["chronoplay", "--invalid-flag-or-uncovered-branch"]),
         pytest.raises(SystemExit),
