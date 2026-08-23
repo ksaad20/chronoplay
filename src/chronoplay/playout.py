@@ -52,59 +52,30 @@ class PlayoutEngine:
         self._current_event: ScheduleEvent | None = None
         self._lock = RLock()
 
-    @staticmethod
-    def _default_validator(asset: MediaAsset) -> None:
-        """Validate a media asset using its built-in validation rules."""
-        asset.validate()
+        @staticmethod
+        def _default_validator(asset: MediaAsset) -> None:
+        """Validate a media asset before playout."""
+        if not asset.path.exists():
+            raise MediaError(f"Media asset does not exist: {asset.path}")
 
-    @property
-    def state(self) -> PlayoutState:
-        """Return the current playout state."""
-        with self._lock:
-            return self._state
+        if not asset.path.is_file():
+            raise MediaError(
+                f"Media path is not a regular file: {asset.path}"
+            )
 
-    @property
-    def current_event(self) -> ScheduleEvent | None:
-        """Return the event currently assigned to playout."""
-        with self._lock:
-            return self._current_event
+        if not asset.is_supported:
+            raise MediaError(
+                f"Unsupported media format: "
+                f"{asset.path.suffix.lower() or '<none>'}"
+            )
 
-    def start(self) -> None:
-        """Prepare the playout engine for media execution."""
-        with self._lock:
-            if self._state is PlayoutState.PLAYING:
-                raise PlayoutError("Playout engine is already playing.")
-
-            if self._state is PlayoutState.ERROR:
-                raise PlayoutError("Playout engine is in an error state.")
-
-            self._state = PlayoutState.READY
-
-    def stop(self) -> None:
-        """Stop playout and clear the current event."""
-        with self._lock:
-            self._current_event = None
-            self._state = PlayoutState.STOPPED
-
-    def play(self, event: ScheduleEvent) -> PlayoutResult:
-        """Validate and accept a scheduled event for playout."""
-        with self._lock:
-            if self._state is PlayoutState.STOPPED:
-                raise PlayoutError("Playout engine must be started before playing an event.")
-
-            if self._state is PlayoutState.ERROR:
-                raise PlayoutError("Playout engine is in an error state.")
-
-            media = self._extract_media(event)
-
-            try:
-                self._validator(media)
-            except MediaError as exc:
-                self._state = PlayoutState.ERROR
-                self._current_event = None
-                raise PlayoutError(
-                    f"Media validation failed for event {event.event_id}: {exc}"
-                ) from exc
+        try:
+            with asset.path.open("rb"):
+                pass
+        except OSError as exc:
+            raise MediaError(
+                f"Media asset is not readable: {asset.path}"
+            ) from exc
 
             self._current_event = event
             self._state = PlayoutState.PLAYING
