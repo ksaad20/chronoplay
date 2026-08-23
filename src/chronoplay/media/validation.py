@@ -34,6 +34,12 @@ class MediaNotFoundError(MediaValidationError):
     pass
 
 
+class MediaUnreadableError(MediaValidationError):
+    """Raised when a media asset cannot be read or processed."""
+
+    pass
+
+
 class MediaProbe(Protocol):
     def probe(self, path: str | Path) -> MediaMetadata: ...
 
