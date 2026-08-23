@@ -9,6 +9,39 @@ from chronoplay.media.metadata import MediaMetadata
 from chronoplay.media.source import FileMediaSource
 from chronoplay.media.states import AssetState
 
+SUPPORTED_MEDIA_EXTENSIONS = frozenset(
+    {
+        ".avi",
+        ".m4a",
+        ".m4v",
+        ".mkv",
+        ".mov",
+        ".mp3",
+        ".mp4",
+        ".mpeg",
+        ".mpg",
+        ".ts",
+        ".wav",
+        ".webm",
+    }
+)
+
+
+class MediaError(Exception):
+    """Base exception for media-related errors."""
+
+
+class MediaValidationError(MediaError, ValueError):
+    """Raised when media validation fails."""
+
+
+class MediaNotFoundError(MediaError, FileNotFoundError):
+    """Raised when a media asset does not exist."""
+
+
+class MediaUnreadableError(MediaError, OSError):
+    """Raised when a media asset cannot be read."""
+
 
 @dataclass(slots=True)
 class MediaAsset:
@@ -26,16 +59,16 @@ class MediaAsset:
         normalized_path = Path(self.path)
 
         if not str(normalized_path).strip():
-            raise ValueError("Media path cannot be empty.")
+            raise MediaValidationError("Media path cannot be empty.")
 
         if self.media_id is not None and not self.media_id.strip():
-            raise ValueError("media_id cannot be empty.")
+            raise MediaValidationError("media_id cannot be empty.")
 
         if self.title is not None and not self.title.strip():
-            raise ValueError("title cannot be empty.")
+            raise MediaValidationError("title cannot be empty.")
 
         if self.duration is not None and self.duration < 0:
-            raise ValueError("Media duration cannot be negative.")
+            raise MediaValidationError("Media duration cannot be negative.")
 
         object.__setattr__(self, "path", normalized_path)
         object.__setattr__(self, "metadata", dict(self.metadata))
@@ -52,12 +85,43 @@ class MediaAsset:
         return self.path.suffix.lower()
 
     @property
+    def is_supported(self) -> bool:
+        return self.extension in SUPPORTED_MEDIA_EXTENSIONS
+
+    @property
     def source(self) -> FileMediaSource:
         return FileMediaSource(self.path)
 
     @property
     def available(self) -> bool:
         return self.source.available
+
+    def validate_path(self) -> None:
+        if not self.path.exists():
+            raise MediaNotFoundError(f"Media asset does not exist: {self.path}")
+
+        if not self.path.is_file():
+            raise MediaUnreadableError(
+                f"Media path is not a regular file: {self.path}"
+            )
+
+        try:
+            with self.path.open("rb"):
+                pass
+        except OSError as exc:
+            raise MediaUnreadableError(
+                f"Media asset is not readable: {self.path}"
+            ) from exc
+
+    def validate(self, *, require_supported_extension: bool = True) -> None:
+        self.validate_path()
+
+        if require_supported_extension and not self.is_supported:
+            extension = self.extension or "<none>"
+            raise MediaValidationError(f"Unsupported media format: {extension}")
+
+    def mark_validating(self) -> None:
+        self.state = AssetState.VALIDATING
 
     def mark_valid(
         self,
@@ -71,9 +135,6 @@ class MediaAsset:
         self.content_hash = content_hash
         self.duration = metadata.duration
         self.state = AssetState.VALID
-
-    def mark_validating(self) -> None:
-        self.state = AssetState.VALIDATING
 
     def mark_invalid(self) -> None:
         self.state = AssetState.INVALID
