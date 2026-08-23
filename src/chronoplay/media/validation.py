@@ -28,8 +28,15 @@ class MediaValidationFailure(MediaValidationError):
     pass
 
 
+class MediaNotFoundError(MediaValidationError):
+    """Raised when a requested media asset cannot be found."""
+
+    pass
+
+
 class MediaProbe(Protocol):
-    def probe(self, path: str | Path) -> MediaMetadata: ...
+    def probe(self, path: str | Path) -> MediaMetadata:
+        ...
 
 
 @dataclass(frozen=True, slots=True)
