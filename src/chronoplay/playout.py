@@ -54,8 +54,9 @@ class PlayoutEngine:
 
     @staticmethod
     def _default_validator(asset: MediaAsset) -> None:
-        """Validate a media asset using its built-in validation rules."""
-        asset.validate()
+    """Validate a media asset before playout."""
+    if not asset.path.is_file():
+        raise MediaError(f"Media asset is not a readable file: {asset.path}")
 
     @property
     def state(self) -> PlayoutState:
