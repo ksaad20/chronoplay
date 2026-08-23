@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
 from uuid import UUID, uuid4
 
 from chronoplay.media.metadata import MediaMetadata
@@ -10,23 +12,68 @@ from chronoplay.media.states import AssetState
 
 @dataclass(slots=True)
 class MediaAsset:
-    source: FileMediaSource
+    path: Path
+    media_id: str | None = None
+    title: str | None = None
+    duration: float | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
     asset_id: UUID = field(default_factory=uuid4)
-    metadata: MediaMetadata | None = None
+    media_metadata: MediaMetadata | None = None
     content_hash: str | None = None
     state: AssetState = AssetState.DISCOVERED
+
+    def __post_init__(self) -> None:
+        normalized_path = Path(self.path)
+
+        if not str(normalized_path).strip():
+            raise ValueError("Media path cannot be empty.")
+
+        if self.media_id is not None and not self.media_id.strip():
+            raise ValueError("media_id cannot be empty.")
+
+        if self.title is not None and not self.title.strip():
+            raise ValueError("title cannot be empty.")
+
+        if self.duration is not None and self.duration < 0:
+            raise ValueError("Media duration cannot be negative.")
+
+        object.__setattr__(self, "path", normalized_path)
+        object.__setattr__(self, "metadata", dict(self.metadata))
+
+    @property
+    def identifier(self) -> str:
+        if self.media_id is not None:
+            return self.media_id
+
+        return self.path.as_posix()
+
+    @property
+    def extension(self) -> str:
+        return self.path.suffix.lower()
+
+    @property
+    def source(self) -> FileMediaSource:
+        return FileMediaSource(self.path)
 
     @property
     def available(self) -> bool:
         return self.source.available
 
-    def mark_valid(self, metadata: MediaMetadata, content_hash: str) -> None:
+    def mark_valid(
+        self,
+        metadata: MediaMetadata,
+        content_hash: str,
+    ) -> None:
         if not content_hash:
             raise ValueError("content_hash must not be empty")
 
-        self.metadata = metadata
+        self.media_metadata = metadata
         self.content_hash = content_hash
+        self.duration = metadata.duration
         self.state = AssetState.VALID
+
+    def mark_validating(self) -> None:
+        self.state = AssetState.VALIDATING
 
     def mark_invalid(self) -> None:
         self.state = AssetState.INVALID
@@ -39,6 +86,3 @@ class MediaAsset:
 
     def mark_unavailable(self) -> None:
         self.state = AssetState.UNAVAILABLE
-
-    def mark_validating(self) -> None:
-        self.state = AssetState.VALIDATING
