@@ -2,12 +2,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from chronoplay.media.metadata import MediaMetadata
 from chronoplay.media.source import FileMediaSource
 from chronoplay.media.states import AssetState
+
+if TYPE_CHECKING:
+    from chronoplay.media.validation import MediaValidator, ValidationResult
 
 
 @dataclass(slots=True)
@@ -58,6 +61,16 @@ class MediaAsset:
     @property
     def available(self) -> bool:
         return self.source.available
+
+    def validate(self, validator: MediaValidator | None = None) -> ValidationResult:
+        """Validate this asset using the given validator or a default FFprobe validator."""
+        if validator is None:
+            from chronoplay.media.probe import FFprobeMediaProbe
+            from chronoplay.media.validation import MediaValidator
+
+            validator = MediaValidator(probe=FFprobeMediaProbe())
+
+        return validator.validate(self)
 
     def mark_valid(
         self,
