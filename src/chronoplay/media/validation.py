@@ -12,6 +12,22 @@ from chronoplay.media.source import FileMediaSource
 from chronoplay.media.states import AssetState
 
 
+class MediaValidationError(Exception):
+    """Base exception for media validation and processing errors."""
+
+    pass
+
+
+# Alias for backward compatibility across modules
+MediaError = MediaValidationError
+
+
+class MediaValidationFailure(MediaValidationError):
+    """Raised when media validation fails."""
+
+    pass
+
+
 class MediaProbe(Protocol):
     def probe(self, path: str | Path) -> MediaMetadata: ...
 
