@@ -8,7 +8,15 @@ from uuid import UUID, uuid4
 from chronoplay.media.metadata import MediaMetadata
 from chronoplay.media.source import FileMediaSource
 from chronoplay.media.states import AssetState
+from chronoplay.media.validation import MediaValidator, ValidationResult
+# Inside src/chronoplay/media/asset.py
 
+
+class MediaAsset:
+    ...
+    def validate(self, validator: MediaValidator) -> ValidationResult:
+        """Validate this asset using the provided MediaValidator."""
+        return validator.validate(self)
 
 @dataclass(slots=True)
 class MediaAsset:
