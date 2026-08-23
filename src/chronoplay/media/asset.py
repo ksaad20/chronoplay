@@ -8,6 +8,11 @@ from uuid import UUID, uuid4
 from chronoplay.media.metadata import MediaMetadata
 from chronoplay.media.source import FileMediaSource
 from chronoplay.media.states import AssetState
+from chronoplay.media.validation import (
+    MediaNotFoundError,
+    MediaValidationError,
+    MediaValidationFailure,
+)
 
 if TYPE_CHECKING:
     from chronoplay.media.validation import MediaValidator, ValidationResult
@@ -29,16 +34,16 @@ class MediaAsset:
         normalized_path = Path(self.path)
 
         if not str(normalized_path).strip():
-            raise ValueError("Media path cannot be empty.")
+            raise MediaValidationError("Media path cannot be empty.")
 
         if self.media_id is not None and not self.media_id.strip():
-            raise ValueError("media_id cannot be empty.")
+            raise MediaValidationError("media_id cannot be empty.")
 
         if self.title is not None and not self.title.strip():
-            raise ValueError("title cannot be empty.")
+            raise MediaValidationError("title cannot be empty.")
 
         if self.duration is not None and self.duration < 0:
-            raise ValueError("Media duration cannot be negative.")
+            raise MediaValidationError("Media duration cannot be negative.")
 
         object.__setattr__(self, "path", normalized_path)
         object.__setattr__(self, "metadata", dict(self.metadata))
@@ -61,6 +66,19 @@ class MediaAsset:
     @property
     def available(self) -> bool:
         return self.source.available
+
+    def validate_path(self) -> Path:
+        """Validate that the underlying media path exists and is accessible."""
+        if not str(self.path).strip():
+            raise MediaValidationError("Media path cannot be empty.")
+
+        if not self.path.exists():
+            raise MediaNotFoundError(f"Media file not found: {self.path}")
+
+        if not self.path.is_file():
+            raise MediaValidationFailure(f"Media path is not a file: {self.path}")
+
+        return self.path
 
     def validate(self, validator: MediaValidator | None = None) -> ValidationResult:
         """Validate this asset using the given validator or a default FFprobe validator."""
