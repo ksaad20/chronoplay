@@ -9,7 +9,6 @@ from chronoplay.media.metadata import MediaMetadata
 from chronoplay.media.source import FileMediaSource
 from chronoplay.media.states import AssetState
 
-
 @dataclass(slots=True)
 class MediaAsset:
     path: Path
