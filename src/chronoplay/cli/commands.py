@@ -5,8 +5,16 @@ from pathlib import Path
 
 from chronoplay import __version__
 from chronoplay.demo import run_demo
+from unittest.mock import patch
+import runpy
 
 
+def test_commands_main_execution():
+    """Test executing chronoplay.cli.commands directly as __main__."""
+    with patch("chronoplay.cli.commands.main", return_value=0) as mock_main:
+        runpy.run_module("chronoplay.cli.commands", run_name="__main__")
+        mock_main.assert_called_once()
+        
 def _run_demo(media_path: Path) -> None:
     """Run the ChronoPlay demonstration."""
     run_demo(media_path)
