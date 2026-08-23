@@ -52,10 +52,30 @@ class PlayoutEngine:
         self._current_event: ScheduleEvent | None = None
         self._lock = RLock()
 
-    @staticmethod
+        @staticmethod
     def _default_validator(asset: MediaAsset) -> None:
-        """Validate a media asset using its built-in validation rules."""
-        asset.validate()
+        """Validate a media asset before playout."""
+        if not asset.path.exists():
+            raise MediaError(f"Media asset does not exist: {asset.path}")
+
+        if not asset.path.is_file():
+            raise MediaError(
+                f"Media path is not a regular file: {asset.path}"
+            )
+
+        if not asset.is_supported:
+            raise MediaError(
+                f"Unsupported media format: "
+                f"{asset.path.suffix.lower() or '<none>'}"
+            )
+
+        try:
+            with asset.path.open("rb"):
+                pass
+        except OSError as exc:
+            raise MediaError(
+                f"Media asset is not readable: {asset.path}"
+            ) from exc
 
     @property
     def state(self) -> PlayoutState:
