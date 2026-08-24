@@ -17,7 +17,22 @@ from chronoplay.media.validation import (
 if TYPE_CHECKING:
     from chronoplay.media.validation import MediaValidator, ValidationResult
 
-SUPPORTED_EXTENSIONS = {".mp4", ".mkv", ".avi", ".mov", ".mp3", ".wav", ".flac", ".aac"}
+SUPPORTED_EXTENSIONS = {
+    ".aac",
+    ".avi",
+    ".flac",
+    ".m4a",
+    ".m4v",
+    ".mkv",
+    ".mov",
+    ".mp3",
+    ".mp4",
+    ".mpeg",
+    ".mpg",
+    ".ts",
+    ".wav",
+    ".webm",
+}
 
 
 @dataclass(slots=True)
@@ -54,12 +69,15 @@ class MediaAsset:
     def identifier(self) -> str:
         if self.media_id is not None:
             return self.media_id
-
         return self.path.as_posix()
 
     @property
     def extension(self) -> str:
         return self.path.suffix.lower()
+
+    @property
+    def is_supported(self) -> bool:
+        return self.extension in SUPPORTED_EXTENSIONS
 
     @property
     def source(self) -> FileMediaSource:
@@ -87,8 +105,10 @@ class MediaAsset:
         validator: MediaValidator | None = None,
         require_supported_extension: bool = True,
     ) -> ValidationResult:
-        """Validate this asset using the given validator or a default FFprobe validator."""
-        if require_supported_extension and self.extension not in SUPPORTED_EXTENSIONS:
+        """Validate this asset using path accessibility check and probe validator."""
+        self.validate_path()
+
+        if require_supported_extension and not self.is_supported:
             raise MediaValidationError("Unsupported media format")
 
         if validator is None:
@@ -99,11 +119,7 @@ class MediaAsset:
 
         return validator.validate(self)
 
-    def mark_valid(
-        self,
-        metadata: MediaMetadata,
-        content_hash: str,
-    ) -> None:
+    def mark_valid(self, metadata: MediaMetadata, content_hash: str) -> None:
         if not content_hash:
             raise ValueError("content_hash must not be empty")
 
