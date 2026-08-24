@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Protocol
 if TYPE_CHECKING:
     from chronoplay.media.asset import MediaAsset
 
-from chronoplay.media.asset import MediaAsset
 from chronoplay.media.hashing import hash_file
 from chronoplay.media.metadata import MediaMetadata
 from chronoplay.media.probe import MediaProbeError
