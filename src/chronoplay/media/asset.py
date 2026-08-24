@@ -10,12 +10,14 @@ from chronoplay.media.source import FileMediaSource
 from chronoplay.media.states import AssetState
 from chronoplay.media.validation import (
     MediaNotFoundError,
+    MediaUnreadableError,
     MediaValidationError,
-    MediaValidationFailure,
 )
 
 if TYPE_CHECKING:
     from chronoplay.media.validation import MediaValidator, ValidationResult
+
+SUPPORTED_EXTENSIONS = {".mp4", ".mkv", ".avi", ".mov", ".mp3", ".wav", ".flac", ".aac"}
 
 
 @dataclass(slots=True)
@@ -60,24 +62,6 @@ class MediaAsset:
         return self.path.suffix.lower()
 
     @property
-    def is_supported(self) -> bool:
-        """Return whether the media asset uses a supported file extension."""
-        return self.extension in {
-            ".avi",
-            ".m4a",
-            ".m4v",
-            ".mkv",
-            ".mov",
-            ".mp3",
-            ".mp4",
-            ".mpeg",
-            ".mpg",
-            ".ts",
-            ".wav",
-            ".webm",
-        }
-
-    @property
     def source(self) -> FileMediaSource:
         return FileMediaSource(self.path)
 
@@ -91,18 +75,22 @@ class MediaAsset:
             raise MediaValidationError("Media path cannot be empty.")
 
         if not self.path.exists():
-            raise MediaNotFoundError(f"Media file not found: {self.path}")
+            raise MediaNotFoundError(f"Media asset does not exist: {self.path}")
 
         if not self.path.is_file():
-            raise MediaValidationFailure(f"Media path is not a file: {self.path}")
+            raise MediaUnreadableError(f"Path is not a regular file: {self.path}")
 
         return self.path
 
     def validate(
         self,
         validator: MediaValidator | None = None,
+        require_supported_extension: bool = True,
     ) -> ValidationResult:
         """Validate this asset using the given validator or a default FFprobe validator."""
+        if require_supported_extension and self.extension not in SUPPORTED_EXTENSIONS:
+            raise MediaValidationError("Unsupported media format")
+
         if validator is None:
             from chronoplay.media.probe import FFprobeMediaProbe
             from chronoplay.media.validation import MediaValidator
