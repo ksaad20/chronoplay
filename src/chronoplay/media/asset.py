@@ -80,7 +80,10 @@ class MediaAsset:
 
         return self.path
 
-    def validate(self, validator: MediaValidator | None = None) -> ValidationResult:
+    def validate(
+        self,
+        validator: MediaValidator | None = None,
+    ) -> ValidationResult:
         """Validate this asset using the given validator or a default FFprobe validator."""
         if validator is None:
             from chronoplay.media.probe import FFprobeMediaProbe
