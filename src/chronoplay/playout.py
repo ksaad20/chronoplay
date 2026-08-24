@@ -73,10 +73,14 @@ class PlayoutEngine:
         """Prepare the playout engine for media execution."""
         with self._lock:
             if self._state is PlayoutState.PLAYING:
-                raise PlayoutError("Playout engine is already playing.")
+                raise PlayoutError(
+                    "Playout engine is already playing."
+                )
 
             if self._state is PlayoutState.ERROR:
-                raise PlayoutError("Playout engine is in an error state.")
+                raise PlayoutError(
+                    "Playout engine is in an error state."
+                )
 
             self._state = PlayoutState.READY
 
@@ -90,20 +94,26 @@ class PlayoutEngine:
         """Validate and accept a scheduled event for playout."""
         with self._lock:
             if self._state is PlayoutState.STOPPED:
-                raise PlayoutError("Playout engine must be started before playing an event.")
+                raise PlayoutError(
+                    "Playout engine must be started before playing an event."
+                )
 
             if self._state is PlayoutState.ERROR:
-                raise PlayoutError("Playout engine is in an error state.")
+                raise PlayoutError(
+                    "Playout engine is in an error state."
+                )
 
             media = self._extract_media(event)
 
             try:
                 self._validator(media)
-            except MediaError as exc:
+            except (MediaError, OSError, ValueError) as exc:
                 self._state = PlayoutState.ERROR
                 self._current_event = None
+
                 raise PlayoutError(
-                    f"Media validation failed for event {event.event_id}: {exc}"
+                    f"Media validation failed for event "
+                    f"{event.event_id}: {exc}"
                 ) from exc
 
             self._current_event = event
@@ -149,6 +159,8 @@ class PlayoutEngine:
         payload: Any = event.payload
 
         if not isinstance(payload, MediaAsset):
-            raise PlayoutError("ScheduleEvent payload must contain a MediaAsset.")
+            raise PlayoutError(
+                "ScheduleEvent payload must contain a MediaAsset."
+            )
 
         return payload
