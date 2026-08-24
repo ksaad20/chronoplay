@@ -10,12 +10,29 @@ from chronoplay.media.source import FileMediaSource
 from chronoplay.media.states import AssetState
 from chronoplay.media.validation import (
     MediaNotFoundError,
+    MediaUnreadableError,
     MediaValidationError,
     MediaValidationFailure,
 )
 
 if TYPE_CHECKING:
     from chronoplay.media.validation import MediaValidator, ValidationResult
+
+
+_SUPPORTED_EXTENSIONS = {
+    ".avi",
+    ".m4a",
+    ".m4v",
+    ".mkv",
+    ".mov",
+    ".mp3",
+    ".mp4",
+    ".mpeg",
+    ".mpg",
+    ".ts",
+    ".wav",
+    ".webm",
+}
 
 
 @dataclass(slots=True)
@@ -62,20 +79,7 @@ class MediaAsset:
     @property
     def is_supported(self) -> bool:
         """Return whether the media asset uses a supported file extension."""
-        return self.extension in {
-            ".avi",
-            ".m4a",
-            ".m4v",
-            ".mkv",
-            ".mov",
-            ".mp3",
-            ".mp4",
-            ".mpeg",
-            ".mpg",
-            ".ts",
-            ".wav",
-            ".webm",
-        }
+        return self.extension in _SUPPORTED_EXTENSIONS
 
     @property
     def source(self) -> FileMediaSource:
@@ -91,18 +95,31 @@ class MediaAsset:
             raise MediaValidationError("Media path cannot be empty.")
 
         if not self.path.exists():
-            raise MediaNotFoundError(f"Media file not found: {self.path}")
+            raise MediaNotFoundError(
+                f"Media asset does not exist: {self.path}"
+            )
 
         if not self.path.is_file():
-            raise MediaValidationFailure(f"Media path is not a file: {self.path}")
+            raise MediaUnreadableError(
+                f"Media asset is not a regular file: {self.path}"
+            )
 
         return self.path
 
     def validate(
         self,
         validator: MediaValidator | None = None,
+        *,
+        require_supported_extension: bool = True,
     ) -> ValidationResult:
-        """Validate this asset using the given validator or a default FFprobe validator."""
+        """Validate this asset using the configured media validation rules."""
+        self.validate_path()
+
+        if require_supported_extension and not self.is_supported:
+            raise MediaValidationError(
+                f"Unsupported media format: {self.extension}"
+            )
+
         if validator is None:
             from chronoplay.media.probe import FFprobeMediaProbe
             from chronoplay.media.validation import MediaValidator
