@@ -7,8 +7,8 @@ from uuid import UUID
 from chronoplay.media.asset import MediaAsset
 from chronoplay.media.source import FileMediaSource
 from chronoplay.media.validation import (
+    MediaNotFoundError,
     MediaValidationError,
-    ValidationResult,
 )
 
 
@@ -47,7 +47,7 @@ class MediaLibrary:
         """Alias for resolve_path."""
         return self.resolve_path(path)
 
-    def asset(
+    def create_asset(
         self,
         path: str | Path,
         media_id: str | None = None,
@@ -55,8 +55,22 @@ class MediaLibrary:
         duration: float | None = None,
     ) -> MediaAsset:
         resolved = self.resolve_path(path)
-        asset_obj = MediaAsset(
+        return MediaAsset(
             path=resolved,
+            media_id=media_id,
+            title=title,
+            duration=duration,
+        )
+
+    def asset(
+        self,
+        path: str | Path,
+        media_id: str | None = None,
+        title: str | None = None,
+        duration: float | None = None,
+    ) -> MediaAsset:
+        asset_obj = self.create_asset(
+            path=path,
             media_id=media_id,
             title=title,
             duration=duration,
@@ -66,11 +80,30 @@ class MediaLibrary:
 
     def validate(
         self,
-        path: str | Path,
+        asset_or_path: MediaAsset | str | Path,
         media_id: str | None = None,
-    ) -> ValidationResult:
-        asset_obj = self.asset(path=path, media_id=media_id)
-        return asset_obj.validate()
+        require_supported_extension: bool = True,
+    ) -> MediaAsset:
+        if isinstance(asset_or_path, MediaAsset):
+            asset_obj = asset_or_path
+        else:
+            asset_obj = self.asset(path=asset_or_path, media_id=media_id)
+
+        try:
+            asset_obj.validate_path()
+        except (MediaNotFoundError, MediaValidationError):
+            asset_obj.mark_missing()
+            return asset_obj
+
+        if (
+            require_supported_extension
+            and hasattr(asset_obj, "is_supported")
+            and not asset_obj.is_supported
+        ):
+            asset_obj.mark_invalid()
+            return asset_obj
+
+        return asset_obj
 
     def add(self, asset: MediaAsset) -> None:
         if asset.asset_id in self._assets:
