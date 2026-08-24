@@ -6,10 +6,7 @@ from uuid import UUID
 
 from chronoplay.media.asset import MediaAsset
 from chronoplay.media.source import FileMediaSource
-from chronoplay.media.validation import (
-    MediaValidationError,
-    ValidationResult,
-)
+from chronoplay.media.validation import MediaValidationError
 
 
 class MediaLibrary:
@@ -68,9 +65,11 @@ class MediaLibrary:
         self,
         path: str | Path,
         media_id: str | None = None,
-    ) -> ValidationResult:
+    ) -> MediaAsset:
+        """Resolve, register, and validate an asset, returning the MediaAsset."""
         asset_obj = self.asset(path=path, media_id=media_id)
-        return asset_obj.validate()
+        asset_obj.validate_path()
+        return asset_obj
 
     def add(self, asset: MediaAsset) -> None:
         if asset.asset_id in self._assets:
