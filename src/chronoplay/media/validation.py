@@ -2,15 +2,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
 
-from chronoplay.media.asset import MediaAsset
 from chronoplay.media.hashing import hash_file
 from chronoplay.media.metadata import MediaMetadata
 from chronoplay.media.probe import MediaProbeError
 from chronoplay.media.source import FileMediaSource
 from chronoplay.media.states import AssetState
+from typing import TYPE_CHECKING, Protocol
 
+if TYPE_CHECKING:
+    from chronoplay.media.asset import MediaAsset
 
 class MediaValidationError(Exception):
     """Base exception for media validation and processing errors."""
