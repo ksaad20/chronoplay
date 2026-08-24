@@ -60,6 +60,24 @@ class MediaAsset:
         return self.path.suffix.lower()
 
     @property
+    def is_supported(self) -> bool:
+        """Return whether the media asset uses a supported file extension."""
+        return self.extension in {
+            ".avi",
+            ".m4a",
+            ".m4v",
+            ".mkv",
+            ".mov",
+            ".mp3",
+            ".mp4",
+            ".mpeg",
+            ".mpg",
+            ".ts",
+            ".wav",
+            ".webm",
+        }
+
+    @property
     def source(self) -> FileMediaSource:
         return FileMediaSource(self.path)
 
