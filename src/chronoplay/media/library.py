@@ -43,6 +43,10 @@ class MediaLibrary:
             return self.root / p
         return p
 
+    def resolve(self, path: str | Path) -> Path:
+        """Alias for resolve_path."""
+        return self.resolve_path(path)
+
     def asset(
         self,
         path: str | Path,
