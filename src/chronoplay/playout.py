@@ -90,7 +90,9 @@ class PlayoutEngine:
         """Validate and accept a scheduled event for playout."""
         with self._lock:
             if self._state is PlayoutState.STOPPED:
-                raise PlayoutError("Playout engine must be started before playing an event.")
+                raise PlayoutError(
+                    "Playout engine must be started before playing an event."
+                )
 
             if self._state is PlayoutState.ERROR:
                 raise PlayoutError("Playout engine is in an error state.")
