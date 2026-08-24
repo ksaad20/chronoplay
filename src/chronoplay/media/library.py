@@ -6,10 +6,7 @@ from uuid import UUID
 
 from chronoplay.media.asset import MediaAsset
 from chronoplay.media.source import FileMediaSource
-from chronoplay.media.validation import (
-    MediaValidationError,
-    ValidationResult,
-)
+from chronoplay.media.validation import MediaValidationError
 
 
 class MediaLibrary:
@@ -25,7 +22,9 @@ class MediaLibrary:
         if isinstance(root_or_assets, (str, Path)):
             normalized_root = str(root_or_assets).strip()
             if not normalized_root:
-                raise MediaValidationError("Media library root cannot be empty.")
+                raise MediaValidationError(
+                    "Media library root cannot be empty."
+                )
             self.root = Path(normalized_root)
             asset_iterable = assets
         else:
@@ -68,9 +67,11 @@ class MediaLibrary:
         self,
         path: str | Path,
         media_id: str | None = None,
-    ) -> ValidationResult:
+    ) -> MediaAsset:
+        """Resolve, register, and validate an asset, returning the MediaAsset."""
         asset_obj = self.asset(path=path, media_id=media_id)
-        return asset_obj.validate()
+        asset_obj.validate_path()
+        return asset_obj
 
     def add(self, asset: MediaAsset) -> None:
         if asset.asset_id in self._assets:
@@ -113,12 +114,16 @@ class MediaLibrary:
 
         for asset_ids in self._hash_index.values():
             if len(asset_ids) > 1:
-                groups.append(tuple(self._assets[asset_id] for asset_id in asset_ids))
+                groups.append(
+                    tuple(self._assets[asset_id] for asset_id in asset_ids)
+                )
 
         return tuple(groups)
 
     def missing(self) -> tuple[MediaAsset, ...]:
-        return tuple(asset for asset in self._assets.values() if not asset.available)
+        return tuple(
+            asset for asset in self._assets.values() if not asset.available
+        )
 
     def __contains__(self, asset_id: UUID) -> bool:
         return asset_id in self._assets
@@ -133,7 +138,9 @@ class MediaLibrary:
         if asset.content_hash is None:
             return
 
-        self._hash_index.setdefault(asset.content_hash, set()).add(asset.asset_id)
+        self._hash_index.setdefault(asset.content_hash, set()).add(
+            asset.asset_id
+        )
 
     def _remove_hash_index(self, asset: MediaAsset) -> None:
         if asset.content_hash is None:
