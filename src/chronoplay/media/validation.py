@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
+
+if TYPE_CHECKING:
+    from chronoplay.media.asset import MediaAsset
 
 from chronoplay.media.asset import MediaAsset
 from chronoplay.media.hashing import hash_file
