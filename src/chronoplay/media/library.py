@@ -6,16 +6,67 @@ from uuid import UUID
 
 from chronoplay.media.asset import MediaAsset
 from chronoplay.media.source import FileMediaSource
+from chronoplay.media.validation import (
+    MediaValidationError,
+    ValidationResult,
+)
 
 
 class MediaLibrary:
-    def __init__(self, assets: Iterable[MediaAsset] | None = None) -> None:
+    def __init__(
+        self,
+        root_or_assets: str | Path | Iterable[MediaAsset] | None = None,
+        assets: Iterable[MediaAsset] | None = None,
+    ) -> None:
+        self.root: Path | None = None
         self._assets: dict[UUID, MediaAsset] = {}
         self._hash_index: dict[str, set[UUID]] = {}
 
-        if assets is not None:
-            for asset in assets:
+        if isinstance(root_or_assets, (str, Path)):
+            normalized_root = str(root_or_assets).strip()
+            if not normalized_root:
+                raise MediaValidationError("Media library root cannot be empty.")
+            self.root = Path(normalized_root)
+            asset_iterable = assets
+        else:
+            asset_iterable = root_or_assets
+
+        if asset_iterable is not None:
+            for asset in asset_iterable:
                 self.add(asset)
+
+    def resolve_path(self, path: str | Path) -> Path:
+        p = Path(path)
+        if p.is_absolute():
+            return p
+        if self.root is not None:
+            return self.root / p
+        return p
+
+    def asset(
+        self,
+        path: str | Path,
+        media_id: str | None = None,
+        title: str | None = None,
+        duration: float | None = None,
+    ) -> MediaAsset:
+        resolved = self.resolve_path(path)
+        asset_obj = MediaAsset(
+            path=resolved,
+            media_id=media_id,
+            title=title,
+            duration=duration,
+        )
+        self.add(asset_obj)
+        return asset_obj
+
+    def validate(
+        self,
+        path: str | Path,
+        media_id: str | None = None,
+    ) -> ValidationResult:
+        asset_obj = self.asset(path=path, media_id=media_id)
+        return asset_obj.validate()
 
     def add(self, asset: MediaAsset) -> None:
         if asset.asset_id in self._assets:
