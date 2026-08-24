@@ -2,31 +2,29 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum
-from threading import RLock
-from typing import Any
+from enum import Enum, auto
+from typing import TYPE_CHECKING
 
-from chronoplay.media import MediaAsset, MediaError
-from chronoplay.scheduler import ScheduleEvent
+from chronoplay.media.asset import MediaAsset
+from chronoplay.media.validation import MediaError
+
+if TYPE_CHECKING:
+    from chronoplay.scheduler import ScheduleEvent
+
+
+class PlayoutState(Enum):
+    STOPPED = auto()
+    READY = auto()
+    PLAYING = auto()
+    ERROR = auto()
 
 
 class PlayoutError(Exception):
-    """Base exception for playout-related errors."""
+    """Base exception for playout errors."""
 
 
-class PlayoutState(str, Enum):
-    """States supported by the v0.0.1 playout engine."""
-
-    STOPPED = "stopped"
-    READY = "ready"
-    PLAYING = "playing"
-    ERROR = "error"
-
-
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class PlayoutResult:
-    """Result produced when a media event is accepted for playout."""
-
     event_id: str
     media_id: str
     media_path: str
@@ -34,121 +32,86 @@ class PlayoutResult:
 
 
 class PlayoutEngine:
-    """Backend-independent media playout controller.
-
-    The v0.0.1 engine validates media and manages deterministic playout
-    state. Actual decoding, rendering, encoding, and network delivery are
-    delegated to future backend implementations.
-    """
-
     def __init__(
         self,
-        *,
         validator: Callable[[MediaAsset], None] | None = None,
     ) -> None:
-        """Initialize the playout engine."""
-        self._validator = validator or self._default_validator
-        self._state = PlayoutState.STOPPED
+        self._state: PlayoutState = PlayoutState.STOPPED
         self._current_event: ScheduleEvent | None = None
-        self._lock = RLock()
-
-    @staticmethod
-    def _default_validator(asset: MediaAsset) -> None:
-        """Validate a media asset using its built-in validation rules."""
-        asset.validate()
+        self._validator = validator
 
     @property
     def state(self) -> PlayoutState:
-        """Return the current playout state."""
-        with self._lock:
-            return self._state
+        return self._state
 
     @property
     def current_event(self) -> ScheduleEvent | None:
-        """Return the event currently assigned to playout."""
-        with self._lock:
-            return self._current_event
+        return self._current_event
 
     def start(self) -> None:
-        """Prepare the playout engine for media execution."""
-        with self._lock:
-            if self._state is PlayoutState.PLAYING:
-                raise PlayoutError("Playout engine is already playing.")
-
-            if self._state is PlayoutState.ERROR:
-                raise PlayoutError("Playout engine is in an error state.")
-
+        if self._state in (PlayoutState.STOPPED, PlayoutState.READY):
             self._state = PlayoutState.READY
 
     def stop(self) -> None:
-        """Stop playout and clear the current event."""
-        with self._lock:
-            self._current_event = None
-            self._state = PlayoutState.STOPPED
+        self._current_event = None
+        self._state = PlayoutState.STOPPED
+
+    def reset(self) -> None:
+        self.stop()
 
     def play(self, event: ScheduleEvent) -> PlayoutResult:
-        """Validate and accept a scheduled event for playout."""
-        with self._lock:
-            if self._state is PlayoutState.STOPPED:
-                raise PlayoutError("Playout engine must be started before playing an event.")
+        if self._state is PlayoutState.STOPPED:
+            raise PlayoutError("Engine must be started before playing")
 
-            if self._state is PlayoutState.ERROR:
-                raise PlayoutError("Playout engine is in an error state.")
+        if self._state is PlayoutState.ERROR:
+            raise PlayoutError("Engine is in an error state")
 
-            media = self._extract_media(event)
+        if not isinstance(event.payload, MediaAsset):
+            raise PlayoutError("Schedule event payload must contain a MediaAsset")
 
+        asset: MediaAsset = event.payload
+
+        if self._validator is not None:
             try:
-                self._validator(media)
+                self._validator(asset)
             except MediaError as exc:
                 self._state = PlayoutState.ERROR
                 self._current_event = None
-                raise PlayoutError(
-                    f"Media validation failed for event {event.event_id}: {exc}"
-                ) from exc
+                raise PlayoutError("Media validation failed") from exc
+            except Exception:
+                self._current_event = None
+                raise
+        else:
+            try:
+                asset.validate()
+            except MediaError as exc:
+                self._state = PlayoutState.ERROR
+                self._current_event = None
+                raise PlayoutError("Media validation failed") from exc
 
-            self._current_event = event
-            self._state = PlayoutState.PLAYING
+        self._current_event = event
+        self._state = PlayoutState.PLAYING
 
-            return PlayoutResult(
-                event_id=event.event_id,
-                media_id=media.identifier,
-                media_path=str(media.path),
-                state=self._state,
-            )
+        return PlayoutResult(
+            event_id=str(event.event_id),
+            media_id=asset.identifier,
+            media_path=str(asset.path),
+            state=self._state,
+        )
 
     def complete(self) -> PlayoutResult | None:
-        """Mark the current event as completed."""
-        with self._lock:
-            if self._current_event is None:
-                return None
+        if self._current_event is None or self._state is not PlayoutState.PLAYING:
+            return None
 
-            event = self._current_event
-            media = self._extract_media(event)
+        event = self._current_event
+        asset: MediaAsset = event.payload  # type: ignore[assignment]
 
-            result = PlayoutResult(
-                event_id=event.event_id,
-                media_id=media.identifier,
-                media_path=str(media.path),
-                state=PlayoutState.READY,
-            )
+        self._state = PlayoutState.READY
+        self._current_event = None
 
-            self._current_event = None
-            self._state = PlayoutState.READY
-
-            return result
-
-    def reset(self) -> None:
-        """Recover an errored engine and return it to the stopped state."""
-        with self._lock:
-            self._current_event = None
-            self._state = PlayoutState.STOPPED
-
-    @staticmethod
-    def _extract_media(event: ScheduleEvent) -> MediaAsset:
-        """Extract a MediaAsset from a scheduled event payload."""
-        payload: Any = event.payload
-
-        if not isinstance(payload, MediaAsset):
-            raise PlayoutError("ScheduleEvent payload must contain a MediaAsset.")
-
-        return payload
+        return PlayoutResult(
+            event_id=str(event.event_id),
+            media_id=asset.identifier,
+            media_path=str(asset.path),
+            state=self._state,
+        )
